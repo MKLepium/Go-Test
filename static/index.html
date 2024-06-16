@@ -1,0 +1,30 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Test</title>
+</head>
+<body>
+    <h1>Test</h1>
+    <input type="text" id="input" />
+    <button id="button">Submit</button>
+    <script>
+        document.getElementById('button').addEventListener('click', function() {
+            var input = document.getElementById('input').value;
+            //alert(input);
+            // send ajax request
+            var xhr = new XMLHttpRequest();
+            xhr.open('POST', '/api/test', true);
+            xhr.setRequestHeader('Content-Type', 'application/json');
+            xhr.send(JSON.stringify({input: input}));
+            xhr.onreadystatechange = function() {
+                if (xhr.readyState == 4 && xhr.status == 200) {
+                    var response = JSON.parse(xhr.responseText);
+                    // console log response
+                    console.log(response);
+                }
+            };
+        });
+    </script>
+    
+</body>
+</html>
