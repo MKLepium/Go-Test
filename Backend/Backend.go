@@ -1,4 +1,4 @@
-package frontend
+package Backend
 
 import (
 	"fmt"
@@ -33,7 +33,7 @@ func postTest(w http.ResponseWriter, r *http.Request) {
 	io.WriteString(w, `{"status": "Request received"}`)
 }
 
-func FrontendServer(port int, hostname string) *http.Server {
+func HTTPServer(port int, hostname string) *http.Server {
 	http.HandleFunc("/", getRoot)
 	http.HandleFunc("/api/test", postTest)
 
