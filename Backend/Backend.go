@@ -87,7 +87,7 @@ func handleUserRequest(w http.ResponseWriter, r *http.Request) {
 	// For now two random API calls and a python script to generate a random image.
 	go callAPI("https://some-random-api.com/facts/koala", id, "koala_fact", string(body))
 	go callAPI("https://catfact.ninja/fact", id, "cat_fact", string(body))
-	go callPythonScript(string(body), "./ImageGenerator/ImageGenerator.py", id, "imagepath")
+	go handleImageGeneration(string(body), "./ImageGenerator/ImageGenerator.py", id, "imagepath")
 
 	fmt.Fprintf(w, `{"id": "%s", "message": "Request is being processed"}`, id)
 }
