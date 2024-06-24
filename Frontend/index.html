@@ -1,30 +1,81 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
+    <meta charset="UTF-8">
     <title>Test</title>
+    <style>
+        #responseArea {
+            margin-top: 20px;
+            padding: 10px;
+            background-color: #f4f4f4;
+            border-radius: 5px;
+            display: none; /* Initially hidden */
+        }
+    </style>
 </head>
 <body>
     <h1>Test</h1>
     <input type="text" id="input" />
     <button id="button">Submit</button>
+    <div id="responseArea">
+        <p>Response ID: <span id="responseId"></span></p>
+        <p>Status: <span id="status"></span></p>
+        <div id="results"></div>
+    </div>
+    
     <script>
         document.getElementById('button').addEventListener('click', function() {
             var input = document.getElementById('input').value;
-            //alert(input);
-            // send ajax request
             var xhr = new XMLHttpRequest();
-            xhr.open('POST', '/api/test', true);
+            xhr.open('POST', '/api/request', true);
             xhr.setRequestHeader('Content-Type', 'application/json');
             xhr.send(JSON.stringify({input: input}));
+
             xhr.onreadystatechange = function() {
                 if (xhr.readyState == 4 && xhr.status == 200) {
                     var response = JSON.parse(xhr.responseText);
-                    // console log response
                     console.log(response);
+                    document.getElementById('responseId').textContent = response.id;
+                    document.getElementById('status').textContent = "Processing";
+                    document.getElementById('responseArea').style.display = 'block';
+                    pollResponse(response.id);
                 }
             };
         });
+
+        function pollResponse(id) {
+            setTimeout(function() {
+                fetchResponse(id);
+            }, 5000); // Poll every 5 seconds
+        }
+
+        function fetchResponse(id) {
+            var xhr = new XMLHttpRequest();
+            xhr.open('GET', '/api/response?id=' + encodeURIComponent(id), true);
+            xhr.onreadystatechange = function() {
+                if (xhr.readyState == 4 && xhr.status == 200) {
+                    console.log(xhr.responseText);
+                    var data = JSON.parse(xhr.responseText);
+                    updateUI(data);
+                    if (data.status !== "completed") {
+                        pollResponse(id); // Continue polling if not completed
+                    }
+                }
+            };
+            xhr.send();
+        }
+
+        function updateUI(data) {
+            document.getElementById('status').textContent = data.Status;
+            var resultsDiv = document.getElementById('results');
+            resultsDiv.innerHTML = ''; // Clear previous results
+            for (var key in data.Responses) {
+                var resp = data.Responses[key];
+                var p = document.createElement('p');
+                p.textContent = key + ": " + (resp.Error ? resp.Error : resp.Data);
+                resultsDiv.appendChild(p);
+            }
+        }
     </script>
-    
 </body>
 </html>
